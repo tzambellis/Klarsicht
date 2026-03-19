@@ -57,9 +57,9 @@ build-dashboard:
 
 # --- Deploy ---
 # Requires CI/CD variables:
+#   KUBE_CONFIG_B64          - Base64-encoded kubeconfig for the cluster
 #   KLARSICHT_LLM_API_KEY    - Anthropic API key
 #   KLARSICHT_WEBHOOK_SECRET - HMAC secret for Grafana webhook (optional)
-#   KUBE_CONTEXT             - GitLab agent context, e.g. outcept/klarsicht:test-agent
 
 deploy:
   stage: deploy
@@ -67,19 +67,18 @@ deploy:
     name: dtzar/helm-kubectl:3.17.3
     entrypoint: [""]
   before_script:
-    - |
-      if [ -n "$KUBE_CONTEXT" ]; then
-        kubectl config use-context "$KUBE_CONTEXT"
-      fi
-    - kubectl create namespace klarsicht --dry-run=client -o yaml | kubectl apply -f -
+    - echo "${KUBE_CONFIG_B64}" | base64 -d > /tmp/kubeconfig
+    - export KUBECONFIG=/tmp/kubeconfig
+    - kubectl cluster-info
     - >-
       kubectl create secret docker-registry gitlab-registry
       --namespace=klarsicht
       --docker-server=${CI_REGISTRY}
-      --docker-username=${CI_DEPLOY_USER}
-      --docker-password=${CI_DEPLOY_PASSWORD}
+      --docker-username=${CI_REGISTRY_USER}
+      --docker-password=${CI_REGISTRY_PASSWORD}
       --dry-run=client -o yaml | kubectl apply -f -
   script:
+    - export KUBECONFIG=/tmp/kubeconfig
     - >-
       helm upgrade --install klarsicht helm/klarsicht/
       -f helm/values-vibebros.yaml
@@ -91,8 +90,6 @@ deploy:
       --wait --timeout 5m
   environment:
     name: production
-    kubernetes:
-      namespace: klarsicht
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: manual
