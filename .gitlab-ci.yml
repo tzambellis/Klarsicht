@@ -14,7 +14,7 @@ test:
   image: python:3.13-slim
   script:
     - pip install -e ".[dev]"
-    - python -m pytest tests/ -v --ignore=tests/test_k8s_tools.py
+    - python -m pytest tests/ -v
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

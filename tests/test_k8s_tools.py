@@ -73,8 +73,10 @@ def _make_pod(
 
 
 @patch("app.tools.k8s._v1")
-def test_k8s_get_pod(mock_v1):
-    mock_v1.read_namespaced_pod.return_value = _make_pod(restart_count=7, waiting_reason="CrashLoopBackOff")
+def test_k8s_get_pod(mock_v1_fn):
+    mock_client = MagicMock()
+    mock_v1_fn.return_value = mock_client
+    mock_client.read_namespaced_pod.return_value = _make_pod(restart_count=7, waiting_reason="CrashLoopBackOff")
     result = k8s_get_pod("production", "worker-abc123")
 
     assert result["name"] == "worker-abc123"
@@ -86,8 +88,10 @@ def test_k8s_get_pod(mock_v1):
 
 
 @patch("app.tools.k8s._v1")
-def test_k8s_get_pod_oomkilled(mock_v1):
-    mock_v1.read_namespaced_pod.return_value = _make_pod(terminated_reason="OOMKilled")
+def test_k8s_get_pod_oomkilled(mock_v1_fn):
+    mock_client = MagicMock()
+    mock_v1_fn.return_value = mock_client
+    mock_client.read_namespaced_pod.return_value = _make_pod(terminated_reason="OOMKilled")
     result = k8s_get_pod("production", "worker-abc123")
 
     assert result["containers"][0]["state"] == "terminated"
@@ -95,8 +99,11 @@ def test_k8s_get_pod_oomkilled(mock_v1):
 
 
 @patch("app.tools.k8s._v1")
-def test_k8s_get_events(mock_v1):
+def test_k8s_get_events(mock_v1_fn):
     from datetime import datetime, timezone
+
+    mock_client = MagicMock()
+    mock_v1_fn.return_value = mock_client
 
     event = SimpleNamespace(
         type="Warning",
@@ -107,7 +114,7 @@ def test_k8s_get_events(mock_v1):
         last_timestamp=datetime.now(timezone.utc),
         source=SimpleNamespace(component="kubelet"),
     )
-    mock_v1.list_namespaced_event.return_value = SimpleNamespace(items=[event])
+    mock_client.list_namespaced_event.return_value = SimpleNamespace(items=[event])
 
     result = k8s_get_events("production", "worker-abc123")
     assert len(result) == 1
@@ -116,12 +123,14 @@ def test_k8s_get_events(mock_v1):
 
 
 @patch("app.tools.k8s._v1")
-def test_k8s_get_logs(mock_v1):
-    mock_v1.read_namespaced_pod_log.return_value = "KeyError: 'SECRET_KEY'\nTraceback..."
+def test_k8s_get_logs(mock_v1_fn):
+    mock_client = MagicMock()
+    mock_v1_fn.return_value = mock_client
+    mock_client.read_namespaced_pod_log.return_value = "KeyError: 'SECRET_KEY'\nTraceback..."
     result = k8s_get_logs("production", "worker-abc123", previous=True)
 
     assert "SECRET_KEY" in result
-    mock_v1.read_namespaced_pod_log.assert_called_once_with(
+    mock_client.read_namespaced_pod_log.assert_called_once_with(
         name="worker-abc123",
         namespace="production",
         tail_lines=100,
@@ -130,7 +139,10 @@ def test_k8s_get_logs(mock_v1):
 
 
 @patch("app.tools.k8s._apps_v1")
-def test_k8s_list_deployments(mock_apps):
+def test_k8s_list_deployments(mock_apps_fn):
+    mock_client = MagicMock()
+    mock_apps_fn.return_value = mock_client
+
     dep = SimpleNamespace(
         metadata=SimpleNamespace(name="worker"),
         spec=SimpleNamespace(
@@ -149,7 +161,7 @@ def test_k8s_list_deployments(mock_apps):
             ],
         ),
     )
-    mock_apps.list_namespaced_deployment.return_value = SimpleNamespace(items=[dep])
+    mock_client.list_namespaced_deployment.return_value = SimpleNamespace(items=[dep])
 
     result = k8s_list_deployments("production")
     assert len(result) == 1
@@ -159,7 +171,10 @@ def test_k8s_list_deployments(mock_apps):
 
 
 @patch("app.tools.k8s._v1")
-def test_k8s_get_node(mock_v1):
+def test_k8s_get_node(mock_v1_fn):
+    mock_client = MagicMock()
+    mock_v1_fn.return_value = mock_client
+
     node = SimpleNamespace(
         metadata=SimpleNamespace(name="node-1"),
         status=SimpleNamespace(
@@ -172,7 +187,7 @@ def test_k8s_get_node(mock_v1):
         ),
         spec=SimpleNamespace(taints=[]),
     )
-    mock_v1.read_node.return_value = node
+    mock_client.read_node.return_value = node
 
     result = k8s_get_node("node-1")
     assert result["name"] == "node-1"

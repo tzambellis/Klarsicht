@@ -12,23 +12,35 @@ from kubernetes.client.rest import ApiException
 logger = logging.getLogger(__name__)
 
 
-def _load_config():
-    """Load in-cluster config, fall back to kubeconfig for local dev."""
+_configured = False
+
+
+def _ensure_config():
+    """Lazy-load K8s config on first actual use."""
+    global _configured
+    if _configured:
+        return
     try:
         config.load_incluster_config()
     except config.ConfigException:
         config.load_kube_config()
+    _configured = True
 
 
-_load_config()
-_v1 = client.CoreV1Api()
-_apps_v1 = client.AppsV1Api()
+def _v1() -> client.CoreV1Api:
+    _ensure_config()
+    return client.CoreV1Api()
+
+
+def _apps_v1() -> client.AppsV1Api:
+    _ensure_config()
+    return client.AppsV1Api()
 
 
 def k8s_get_pod(namespace: str, pod_name: str) -> dict[str, Any]:
     """Get pod status: phase, restartCount, conditions, resources, node, containerStatuses."""
     try:
-        pod = _v1.read_namespaced_pod(name=pod_name, namespace=namespace)
+        pod = _v1().read_namespaced_pod(name=pod_name, namespace=namespace)
     except ApiException as e:
         return {"error": f"Failed to get pod: {e.status} {e.reason}"}
 
@@ -100,7 +112,7 @@ def k8s_get_pod(namespace: str, pod_name: str) -> dict[str, Any]:
 def k8s_get_events(namespace: str, involved_object_name: str) -> list[dict[str, Any]]:
     """Get warning events for a specific object in the last 60 minutes."""
     try:
-        events = _v1.list_namespaced_event(
+        events = _v1().list_namespaced_event(
             namespace=namespace,
             field_selector=f"involvedObject.name={involved_object_name}",
         )
@@ -143,7 +155,7 @@ def k8s_get_logs(
         }
         if container:
             kwargs["container"] = container
-        return _v1.read_namespaced_pod_log(**kwargs)
+        return _v1().read_namespaced_pod_log(**kwargs)
     except ApiException as e:
         return f"Failed to get logs: {e.status} {e.reason}"
 
@@ -151,7 +163,7 @@ def k8s_get_logs(
 def k8s_list_deployments(namespace: str) -> list[dict[str, Any]]:
     """List deployments with replica counts, images, and last update timestamps."""
     try:
-        deps = _apps_v1.list_namespaced_deployment(namespace=namespace)
+        deps = _apps_v1().list_namespaced_deployment(namespace=namespace)
     except ApiException as e:
         return [{"error": f"Failed to list deployments: {e.status} {e.reason}"}]
 
@@ -185,7 +197,7 @@ def k8s_list_deployments(namespace: str) -> list[dict[str, Any]]:
 def k8s_get_node(node_name: str) -> dict[str, Any]:
     """Get node status: allocatable resources, conditions, taints."""
     try:
-        node = _v1.read_node(name=node_name)
+        node = _v1().read_node(name=node_name)
     except ApiException as e:
         return {"error": f"Failed to get node: {e.status} {e.reason}"}
 
