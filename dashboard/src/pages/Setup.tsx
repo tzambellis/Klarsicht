@@ -91,6 +91,96 @@ pod = {{ $labels.pod }}`} />
           </p>
         </Card>
 
+        {/* API Setup */}
+        <Card title="Alternative: Setup via Grafana API">
+          <p className="text-sm text-[#888] mb-4">
+            If you prefer automation over the UI, you can configure everything via <code className="text-[#22c55e] bg-white/[0.05] px-1 rounded text-xs">curl</code> and a Grafana Service Account token.
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-xs font-medium text-[#888] uppercase tracking-wider mb-2">1. Create a Service Account Token</h4>
+              <p className="text-xs text-[#888] mb-2">
+                In Grafana: <strong className="text-white">Administration &rarr; Service accounts &rarr; Add service account</strong> (role: Editor). Then create a token.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-medium text-[#888] uppercase tracking-wider mb-2">2. Create the Contact Point</h4>
+              <CodeBlock code={`curl -s -X POST \\
+  https://YOUR_GRAFANA_URL/api/v1/provisioning/contact-points \\
+  -H "Authorization: Bearer YOUR_SERVICE_ACCOUNT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "klarsicht",
+    "type": "webhook",
+    "settings": {
+      "url": "${INTERNAL_URL}",
+      "httpMethod": "POST"
+    }
+  }'`} />
+            </div>
+
+            <div>
+              <h4 className="text-xs font-medium text-[#888] uppercase tracking-wider mb-2">3. Set as Default Notification Policy</h4>
+              <CodeBlock code={`curl -s -X PUT \\
+  https://YOUR_GRAFANA_URL/api/v1/provisioning/policies \\
+  -H "Authorization: Bearer YOUR_SERVICE_ACCOUNT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "receiver": "klarsicht",
+    "group_by": ["grafana_folder", "alertname"],
+    "group_wait": "30s",
+    "group_interval": "5m",
+    "repeat_interval": "4h"
+  }'`} />
+            </div>
+
+            <div>
+              <h4 className="text-xs font-medium text-[#888] uppercase tracking-wider mb-2">4. Create a Sample Alert Rule</h4>
+              <CodeBlock code={`curl -s -X POST \\
+  https://YOUR_GRAFANA_URL/api/v1/provisioning/alert-rules \\
+  -H "Authorization: Bearer YOUR_SERVICE_ACCOUNT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "title": "CrashLoopBackOff",
+    "ruleGroup": "klarsicht",
+    "folderUID": "default",
+    "condition": "C",
+    "for": "1m",
+    "labels": { "severity": "critical" },
+    "annotations": {
+      "summary": "Pod {{ $labels.pod }} is crash looping in {{ $labels.namespace }}"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "relativeTimeRange": { "from": 300, "to": 0 },
+        "datasourceUid": "prometheus",
+        "model": {
+          "expr": "kube_pod_container_status_waiting_reason{reason=\\"CrashLoopBackOff\\"} > 0",
+          "refId": "A"
+        }
+      },
+      {
+        "refId": "C",
+        "relativeTimeRange": { "from": 0, "to": 0 },
+        "datasourceUid": "-100",
+        "model": {
+          "type": "reduce",
+          "expression": "A",
+          "reducer": "last",
+          "refId": "C"
+        }
+      }
+    ]
+  }'`} />
+            </div>
+
+            <GrafanaAutoSetup />
+          </div>
+        </Card>
+
         {/* HMAC */}
         <Card title="Optional: HMAC Authentication">
           <p className="text-sm text-[#888] mb-4">
@@ -214,6 +304,109 @@ function CopyableValue({ value }: { value: string }) {
       >
         {copied ? "Copied" : "Copy"}
       </button>
+    </div>
+  );
+}
+
+function GrafanaAutoSetup() {
+  const [grafanaUrl, setGrafanaUrl] = useState("");
+  const [token, setToken] = useState("");
+  const [status, setStatus] = useState<"idle" | "running" | "done" | "error">("idle");
+  const [log, setLog] = useState<string[]>([]);
+
+  const run = useCallback(async () => {
+    if (!grafanaUrl || !token) return;
+    setStatus("running");
+    setLog([]);
+    const url = grafanaUrl.replace(/\/+$/, "");
+    const headers = {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+    const addLog = (msg: string) => setLog((prev) => [...prev, msg]);
+
+    try {
+      // 1. Create contact point
+      addLog("Creating contact point...");
+      const cpRes = await fetch(`${url}/api/v1/provisioning/contact-points`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          name: "klarsicht",
+          type: "webhook",
+          settings: { url: INTERNAL_URL, httpMethod: "POST" },
+        }),
+      });
+      if (cpRes.ok) {
+        addLog("Contact point created.");
+      } else if (cpRes.status === 409) {
+        addLog("Contact point already exists — skipping.");
+      } else {
+        throw new Error(`Contact point: ${cpRes.status} ${await cpRes.text()}`);
+      }
+
+      // 2. Set notification policy
+      addLog("Setting notification policy...");
+      const npRes = await fetch(`${url}/api/v1/provisioning/policies`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({
+          receiver: "klarsicht",
+          group_by: ["grafana_folder", "alertname"],
+          group_wait: "30s",
+          group_interval: "5m",
+          repeat_interval: "4h",
+        }),
+      });
+      if (!npRes.ok) throw new Error(`Policy: ${npRes.status} ${await npRes.text()}`);
+      addLog("Notification policy set.");
+
+      addLog("Done — Grafana is now connected to Klarsicht.");
+      setStatus("done");
+    } catch (e: unknown) {
+      addLog(`Error: ${e instanceof Error ? e.message : String(e)}`);
+      setStatus("error");
+    }
+  }, [grafanaUrl, token]);
+
+  return (
+    <div className="mt-6 border-t border-white/[0.08] pt-6">
+      <h4 className="text-xs font-medium text-[#888] uppercase tracking-wider mb-3">One-Click Setup</h4>
+      <p className="text-xs text-[#888] mb-4">
+        Enter your Grafana URL and a Service Account token to auto-configure the contact point and notification policy.
+      </p>
+      <div className="space-y-3 mb-4">
+        <input
+          type="url"
+          placeholder="https://grafana.example.com"
+          value={grafanaUrl}
+          onChange={(e) => setGrafanaUrl(e.target.value)}
+          className="w-full rounded border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-sm text-white placeholder-[#555] outline-none focus:border-white/[0.2]"
+        />
+        <input
+          type="password"
+          placeholder="Service Account Token (glsa_...)"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          className="w-full rounded border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-sm text-white placeholder-[#555] outline-none focus:border-white/[0.2]"
+        />
+      </div>
+      <button
+        onClick={run}
+        disabled={!grafanaUrl || !token || status === "running"}
+        className="rounded bg-white text-black text-sm font-medium px-4 py-2 hover:bg-white/90 disabled:opacity-50 transition-colors"
+      >
+        {status === "running" ? "Configuring..." : "Configure Grafana"}
+      </button>
+      {log.length > 0 && (
+        <div className={`mt-4 rounded border px-3 py-2 text-xs font-mono space-y-0.5 ${
+          status === "error"
+            ? "border-red-500/20 bg-red-500/5 text-red-400"
+            : "border-[#22c55e]/20 bg-[#22c55e]/5 text-[#22c55e]"
+        }`}>
+          {log.map((l, i) => <div key={i}>{l}</div>)}
+        </div>
+      )}
     </div>
   );
 }
