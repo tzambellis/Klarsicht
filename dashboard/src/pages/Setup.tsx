@@ -397,54 +397,20 @@ function GrafanaAutoSetup() {
   const run = useCallback(async () => {
     if (!grafanaUrl || !token) return;
     setStatus("running");
-    setLog([]);
-    const url = grafanaUrl.replace(/\/+$/, "");
-    const headers = {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
-    const addLog = (msg: string) => setLog((prev) => [...prev, msg]);
+    setLog(["Configuring Grafana via Klarsicht backend..."]);
 
     try {
-      // 1. Create contact point
-      addLog("Creating contact point...");
-      const cpRes = await fetch(`${url}/api/v1/provisioning/contact-points`, {
+      const res = await fetch("/api/grafana-setup", {
         method: "POST",
-        headers,
-        body: JSON.stringify({
-          name: "klarsicht",
-          type: "webhook",
-          settings: { url: INTERNAL_URL, httpMethod: "POST" },
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ grafana_url: grafanaUrl.replace(/\/+$/, ""), token }),
       });
-      if (cpRes.ok) {
-        addLog("Contact point created.");
-      } else if (cpRes.status === 409) {
-        addLog("Contact point already exists — skipping.");
-      } else {
-        throw new Error(`Contact point: ${cpRes.status} ${await cpRes.text()}`);
-      }
-
-      // 2. Set notification policy
-      addLog("Setting notification policy...");
-      const npRes = await fetch(`${url}/api/v1/provisioning/policies`, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({
-          receiver: "klarsicht",
-          group_by: ["grafana_folder", "alertname"],
-          group_wait: "30s",
-          group_interval: "5m",
-          repeat_interval: "4h",
-        }),
-      });
-      if (!npRes.ok) throw new Error(`Policy: ${npRes.status} ${await npRes.text()}`);
-      addLog("Notification policy set.");
-
-      addLog("Done — Grafana is now connected to Klarsicht.");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      setLog(data.steps || ["Done."]);
       setStatus("done");
     } catch (e: unknown) {
-      addLog(`Error: ${e instanceof Error ? e.message : String(e)}`);
+      setLog([`Error: ${e instanceof Error ? e.message : String(e)}`]);
       setStatus("error");
     }
   }, [grafanaUrl, token]);

@@ -7,8 +7,10 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
+import requests as http_requests
+
 from fastapi import FastAPI, Header, HTTPException, Request
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from app.agent.rca_agent import run_investigation
 from app.config import settings
@@ -246,6 +248,58 @@ async def stats_endpoint():
         "recent_incidents": recent[:5],
         "category_breakdown": category_breakdown,
     }
+
+
+class GrafanaSetupRequest(BaseModel):
+    grafana_url: str
+    token: str
+
+
+@app.post("/grafana-setup")
+async def grafana_setup(req: GrafanaSetupRequest):
+    """Proxy Grafana API calls to avoid CORS issues. Creates contact point + notification policy."""
+    url = req.grafana_url.rstrip("/")
+    headers = {"Authorization": f"Bearer {req.token}", "Content-Type": "application/json"}
+    results = []
+
+    # 1. Create contact point
+    cp_resp = http_requests.post(
+        f"{url}/api/v1/provisioning/contact-points",
+        headers=headers,
+        json={
+            "name": "klarsicht",
+            "type": "webhook",
+            "settings": {"url": "http://klarsicht-agent.klarsicht.svc:8000/alert", "httpMethod": "POST"},
+        },
+        timeout=10,
+    )
+    if cp_resp.status_code in (200, 201, 202):
+        results.append("Contact point created.")
+    elif cp_resp.status_code == 409:
+        results.append("Contact point already exists — skipping.")
+    else:
+        raise HTTPException(status_code=cp_resp.status_code, detail=f"Contact point: {cp_resp.text}")
+
+    # 2. Set notification policy
+    np_resp = http_requests.put(
+        f"{url}/api/v1/provisioning/policies",
+        headers=headers,
+        json={
+            "receiver": "klarsicht",
+            "group_by": ["grafana_folder", "alertname"],
+            "group_wait": "30s",
+            "group_interval": "5m",
+            "repeat_interval": "4h",
+        },
+        timeout=10,
+    )
+    if np_resp.status_code in (200, 201, 202):
+        results.append("Notification policy set.")
+    else:
+        raise HTTPException(status_code=np_resp.status_code, detail=f"Policy: {np_resp.text}")
+
+    results.append("Done — Grafana is now connected to Klarsicht.")
+    return {"status": "ok", "steps": results}
 
 
 @app.get("/incidents")
