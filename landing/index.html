@@ -119,52 +119,55 @@
     .arch-toggle { display: flex; gap: 2px; margin: 48px 0 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; width: fit-content; }
     .arch-toggle button { padding: 10px 24px; border: none; background: transparent; color: var(--dim); font-family: var(--sans); font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.3s; }
     .arch-toggle button.active { background: rgba(34,197,94,0.1); color: var(--green); box-shadow: 0 0 20px rgba(34,197,94,0.08); }
-    .arch-diagram { margin-top: 48px; position: relative; }
+    .arch-diagram { margin-top: 48px; }
     .arch-panel { display: none; }
     .arch-panel.active { display: block; }
-    .arch-canvas { position: relative; padding: 48px 0; min-height: 420px; }
+
+    /* Flow layout */
+    .arch-flow { position: relative; }
+    .arch-cluster { border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px; padding: 48px 32px 32px; position: relative; }
+    .arch-cluster-full { padding-bottom: 48px; }
+    .arch-cluster-label { position: absolute; top: -10px; left: 20px; background: var(--bg); padding: 0 12px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .arch-row { display: flex; align-items: center; gap: 0; justify-content: center; flex-wrap: wrap; }
+    .arch-llm-row { display: flex; flex-direction: column; align-items: center; margin-top: 24px; }
+    .arch-external { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
 
     /* Nodes */
-    .anode { position: absolute; padding: 14px 20px; border-radius: 10px; text-align: center; z-index: 2; }
-    .anode-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .anode { padding: 16px 22px; border-radius: 10px; text-align: center; min-width: 120px; position: relative; }
+    .anode-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
     .anode-sub { font-size: 10px; color: var(--dim); }
     .anode-icon { font-size: 20px; margin-bottom: 6px; display: block; }
-
-    .anode-cluster { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.2); color: var(--green); }
-    .anode-agent { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.4); color: var(--green); box-shadow: 0 0 30px rgba(34,197,94,0.1), 0 0 60px rgba(34,197,94,0.05); }
+    .anode-agent { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.35); color: var(--green); box-shadow: 0 0 40px rgba(34,197,94,0.08), 0 0 80px rgba(34,197,94,0.04); }
+    .anode-agent::before { content: ''; position: absolute; inset: -3px; border-radius: 12px; border: 1px solid rgba(34,197,94,0.1); animation: nodepulse 3s ease-in-out infinite; pointer-events: none; }
+    @keyframes nodepulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.8; } }
     .anode-ext { background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; }
     .anode-k8s { background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text); }
     .anode-llm { background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25); color: #a855f7; }
     .anode-llm-local { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); color: var(--green); }
 
-    /* Animated connections */
-    .arch-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-    .conn { stroke-dasharray: 6 4; animation: dash 1.5s linear infinite; }
-    .conn-green { stroke: rgba(34,197,94,0.3); }
-    .conn-blue { stroke: rgba(96,165,250,0.3); }
-    .conn-purple { stroke: rgba(168,85,247,0.3); }
-    @keyframes dash { to { stroke-dashoffset: -20; } }
+    /* Targets stack */
+    .arch-targets { display: flex; flex-direction: column; gap: 8px; }
 
-    /* Glow pulse on agent node */
-    .anode-agent::before { content: ''; position: absolute; inset: -2px; border-radius: 12px; background: rgba(34,197,94,0.08); z-index: -1; animation: nodepulse 3s ease-in-out infinite; }
-    @keyframes nodepulse { 0%,100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
+    /* Arrows */
+    .arch-arrow { font-size: 28px; padding: 0 16px; line-height: 1; animation: arrowpulse 2s ease-in-out infinite; }
+    .arch-arrow-down { font-size: 28px; padding: 8px 0; line-height: 1; animation: arrowpulse 2s ease-in-out infinite; }
+    .arch-arrow-blue { color: rgba(96,165,250,0.4); }
+    .arch-arrow-green { color: rgba(34,197,94,0.4); }
+    .arch-arrow-purple { color: rgba(168,85,247,0.4); }
+    @keyframes arrowpulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* Cluster boundary */
-    .cluster-boundary { position: absolute; border: 1px dashed rgba(255,255,255,0.08); border-radius: 16px; z-index: 0; }
-    .cluster-label { position: absolute; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-
-    /* Model badges */
-    .arch-badges { display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap; }
-    .arch-badge { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; color: var(--dim); background: var(--surface); }
+    /* Badges & desc */
+    .arch-badges { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+    .arch-badge { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 11px; color: var(--dim); background: var(--surface); }
     .arch-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .arch-desc { margin-top: 20px; padding: 18px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 13px; color: var(--dim); line-height: 1.6; }
 
-    /* Responsive */
     @media (max-width: 768px) {
-      .arch-canvas { min-height: 600px; }
-      .anode { padding: 10px 14px; }
-      .anode-label { font-size: 10px; }
-      .anode-sub { font-size: 9px; }
-      .anode-icon { font-size: 16px; }
+      .arch-row { flex-direction: column; gap: 4px; }
+      .arch-arrow { transform: rotate(90deg); padding: 8px 0; }
+      .arch-targets { flex-direction: row; flex-wrap: wrap; gap: 8px; justify-content: center; }
+      .anode { min-width: 100px; padding: 12px 16px; }
+      .arch-cluster { padding: 40px 16px 24px; }
     }
 
     /* Compare */
@@ -388,143 +391,95 @@
     <div class="arch-diagram fade-in">
       <!-- Agent Mode -->
       <div class="arch-panel active" id="arch-agent">
-        <div class="arch-canvas">
-          <!-- Cluster boundary -->
-          <div class="cluster-boundary" style="left:2%;top:0;right:2%;bottom:0"></div>
-          <span class="cluster-label" style="left:4%;top:8px">Your Kubernetes Cluster</span>
-
-          <!-- SVG connections -->
-          <svg class="arch-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
-            <!-- Grafana -> Agent -->
-            <line x1="150" y1="120" x2="460" y2="200" class="conn conn-blue" stroke-width="1.5"/>
-            <!-- Agent -> K8s API -->
-            <line x1="540" y1="200" x2="820" y2="100" class="conn conn-green" stroke-width="1.5"/>
-            <!-- Agent -> Prometheus -->
-            <line x1="540" y1="200" x2="820" y2="200" class="conn conn-green" stroke-width="1.5"/>
-            <!-- Agent -> Postgres -->
-            <line x1="540" y1="200" x2="820" y2="300" class="conn conn-green" stroke-width="1.5"/>
-            <!-- Agent -> Claude API (external) -->
-            <line x1="500" y1="220" x2="500" y2="360" class="conn conn-purple" stroke-width="1.5"/>
-          </svg>
-
-          <!-- Nodes -->
-          <div class="anode anode-ext" style="left:6%;top:18%">
-            <span class="anode-icon">&#9888;</span>
-            <div class="anode-label">Grafana</div>
-            <div class="anode-sub">Alert webhook</div>
+        <div class="arch-flow">
+          <div class="arch-cluster">
+            <div class="arch-cluster-label">Your Kubernetes Cluster</div>
+            <div class="arch-row">
+              <div class="anode anode-ext">
+                <span class="anode-icon">&#9888;</span>
+                <div class="anode-label">Grafana</div>
+                <div class="anode-sub">Alert webhook</div>
+              </div>
+              <div class="arch-arrow arch-arrow-blue">&#10230;</div>
+              <div class="anode anode-agent">
+                <span class="anode-icon">&#10038;</span>
+                <div class="anode-label">Klarsicht Agent</div>
+                <div class="anode-sub">ReAct reasoning loop</div>
+              </div>
+              <div class="arch-arrow arch-arrow-green">&#10230;</div>
+              <div class="arch-targets">
+                <div class="anode anode-k8s"><span class="anode-icon">&#9881;</span><div class="anode-label">K8s API</div><div class="anode-sub">Pods, logs, events</div></div>
+                <div class="anode anode-k8s"><span class="anode-icon">&#9707;</span><div class="anode-label">Prometheus</div><div class="anode-sub">PromQL metrics</div></div>
+                <div class="anode anode-k8s"><span class="anode-icon">&#9638;</span><div class="anode-label">PostgreSQL</div><div class="anode-sub">RCA storage</div></div>
+              </div>
+            </div>
           </div>
-
-          <div class="anode anode-agent" style="left:42%;top:38%;transform:translateX(-50%)">
-            <span class="anode-icon">&#10038;</span>
-            <div class="anode-label">Klarsicht Agent</div>
-            <div class="anode-sub">ReAct reasoning loop</div>
-          </div>
-
-          <div class="anode anode-k8s" style="right:8%;top:10%">
-            <span class="anode-icon">&#9881;</span>
-            <div class="anode-label">K8s API</div>
-            <div class="anode-sub">Pods, logs, events</div>
-          </div>
-
-          <div class="anode anode-k8s" style="right:8%;top:38%">
-            <span class="anode-icon">&#9707;</span>
-            <div class="anode-label">Prometheus</div>
-            <div class="anode-sub">PromQL metrics</div>
-          </div>
-
-          <div class="anode anode-k8s" style="right:8%;top:66%">
-            <span class="anode-icon">&#9638;</span>
-            <div class="anode-label">PostgreSQL</div>
-            <div class="anode-sub">RCA storage</div>
-          </div>
-
-          <div class="anode anode-llm" style="left:42%;bottom:2%;transform:translateX(-50%)">
-            <span class="anode-icon">&#10024;</span>
-            <div class="anode-label">Claude API</div>
-            <div class="anode-sub">Anthropic (external)</div>
+          <div class="arch-external">
+            <div class="arch-arrow-down arch-arrow-purple">&#10225;</div>
+            <div class="anode anode-llm">
+              <span class="anode-icon">&#10024;</span>
+              <div class="anode-label">LLM API</div>
+              <div class="anode-sub">External provider</div>
+            </div>
           </div>
         </div>
 
         <div class="arch-badges">
           <div class="arch-badge"><span class="arch-badge-dot" style="background:#60a5fa"></span> Alert ingestion</div>
-          <div class="arch-badge"><span class="arch-badge-dot" style="background:var(--green)"></span> In-cluster data access</div>
-          <div class="arch-badge"><span class="arch-badge-dot" style="background:#a855f7"></span> LLM reasoning (external API)</div>
+          <div class="arch-badge"><span class="arch-badge-dot" style="background:var(--green)"></span> In-cluster data</div>
+          <div class="arch-badge"><span class="arch-badge-dot" style="background:#a855f7"></span> LLM reasoning (external)</div>
         </div>
 
-        <div style="margin-top:24px;padding:20px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">
-          <p style="font-size:13px;color:var(--dim);line-height:1.6">
-            <strong style="color:var(--text)">Agent Mode</strong> &mdash;
-            Klarsicht runs in your cluster with read-only access to K8s and Prometheus. Only the investigation context (pod names, log snippets, metrics) is sent to the Claude API for reasoning. No raw data export, no persistent storage outside your cluster. Best for teams that need fast setup and top-tier reasoning quality.
-          </p>
+        <div class="arch-desc">
+          <strong style="color:var(--text)">Agent Mode</strong> &mdash;
+          Klarsicht runs in your cluster with read-only K8s and Prometheus access. Only investigation context (pod names, log snippets, metrics) is sent to the LLM for reasoning. No raw data export. Best for fast setup and top-tier reasoning quality.
         </div>
       </div>
 
       <!-- Full On-Prem -->
       <div class="arch-panel" id="arch-onprem">
-        <div class="arch-canvas">
-          <!-- Cluster boundary -->
-          <div class="cluster-boundary" style="left:2%;top:0;right:2%;bottom:0"></div>
-          <span class="cluster-label" style="left:4%;top:8px">Your Kubernetes Cluster &mdash; fully air-gapped</span>
-
-          <!-- SVG connections -->
-          <svg class="arch-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
-            <line x1="150" y1="120" x2="460" y2="200" class="conn conn-blue" stroke-width="1.5"/>
-            <line x1="540" y1="200" x2="820" y2="100" class="conn conn-green" stroke-width="1.5"/>
-            <line x1="540" y1="200" x2="820" y2="200" class="conn conn-green" stroke-width="1.5"/>
-            <line x1="540" y1="200" x2="820" y2="300" class="conn conn-green" stroke-width="1.5"/>
-            <!-- Agent -> Local LLM (in-cluster) -->
-            <line x1="500" y1="220" x2="500" y2="360" class="conn conn-green" stroke-width="1.5"/>
-          </svg>
-
-          <!-- Nodes -->
-          <div class="anode anode-ext" style="left:6%;top:18%">
-            <span class="anode-icon">&#9888;</span>
-            <div class="anode-label">Grafana</div>
-            <div class="anode-sub">Alert webhook</div>
-          </div>
-
-          <div class="anode anode-agent" style="left:42%;top:38%;transform:translateX(-50%)">
-            <span class="anode-icon">&#10038;</span>
-            <div class="anode-label">Klarsicht Agent</div>
-            <div class="anode-sub">ReAct reasoning loop</div>
-          </div>
-
-          <div class="anode anode-k8s" style="right:8%;top:10%">
-            <span class="anode-icon">&#9881;</span>
-            <div class="anode-label">K8s API</div>
-            <div class="anode-sub">Pods, logs, events</div>
-          </div>
-
-          <div class="anode anode-k8s" style="right:8%;top:38%">
-            <span class="anode-icon">&#9707;</span>
-            <div class="anode-label">Prometheus</div>
-            <div class="anode-sub">PromQL metrics</div>
-          </div>
-
-          <div class="anode anode-k8s" style="right:8%;top:66%">
-            <span class="anode-icon">&#9638;</span>
-            <div class="anode-label">PostgreSQL</div>
-            <div class="anode-sub">RCA storage</div>
-          </div>
-
-          <div class="anode anode-llm-local" style="left:42%;bottom:2%;transform:translateX(-50%)">
-            <span class="anode-icon">&#10024;</span>
-            <div class="anode-label">Local LLM</div>
-            <div class="anode-sub">Ollama / vLLM (in-cluster)</div>
+        <div class="arch-flow">
+          <div class="arch-cluster arch-cluster-full">
+            <div class="arch-cluster-label">Your Kubernetes Cluster &mdash; fully air-gapped</div>
+            <div class="arch-row">
+              <div class="anode anode-ext">
+                <span class="anode-icon">&#9888;</span>
+                <div class="anode-label">Grafana</div>
+                <div class="anode-sub">Alert webhook</div>
+              </div>
+              <div class="arch-arrow arch-arrow-blue">&#10230;</div>
+              <div class="anode anode-agent">
+                <span class="anode-icon">&#10038;</span>
+                <div class="anode-label">Klarsicht Agent</div>
+                <div class="anode-sub">ReAct reasoning loop</div>
+              </div>
+              <div class="arch-arrow arch-arrow-green">&#10230;</div>
+              <div class="arch-targets">
+                <div class="anode anode-k8s"><span class="anode-icon">&#9881;</span><div class="anode-label">K8s API</div><div class="anode-sub">Pods, logs, events</div></div>
+                <div class="anode anode-k8s"><span class="anode-icon">&#9707;</span><div class="anode-label">Prometheus</div><div class="anode-sub">PromQL metrics</div></div>
+                <div class="anode anode-k8s"><span class="anode-icon">&#9638;</span><div class="anode-label">PostgreSQL</div><div class="anode-sub">RCA storage</div></div>
+              </div>
+            </div>
+            <div class="arch-llm-row">
+              <div class="arch-arrow-down arch-arrow-green">&#10225;</div>
+              <div class="anode anode-llm-local">
+                <span class="anode-icon">&#10024;</span>
+                <div class="anode-label">Local LLM</div>
+                <div class="anode-sub">Ollama / vLLM (in-cluster)</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="arch-badges">
           <div class="arch-badge"><span class="arch-badge-dot" style="background:#60a5fa"></span> Alert ingestion</div>
-          <div class="arch-badge"><span class="arch-badge-dot" style="background:var(--green)"></span> In-cluster data access</div>
+          <div class="arch-badge"><span class="arch-badge-dot" style="background:var(--green)"></span> In-cluster data</div>
           <div class="arch-badge"><span class="arch-badge-dot" style="background:var(--green)"></span> LLM reasoning (in-cluster)</div>
         </div>
 
-        <div style="margin-top:24px;padding:20px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">
-          <p style="font-size:13px;color:var(--dim);line-height:1.6">
-            <strong style="color:var(--text)">Full On-Prem</strong> &mdash;
-            Zero external calls. The LLM runs inside your cluster via Ollama, vLLM, or any OpenAI-compatible endpoint. Nothing leaves your network &mdash; not even investigation context. Ideal for air-gapped environments, regulated industries, and teams with strict data sovereignty requirements (FINMA, BaFin, GDPR).
-          </p>
+        <div class="arch-desc">
+          <strong style="color:var(--text)">Full On-Prem</strong> &mdash;
+          Zero external calls. The LLM runs inside your cluster via Ollama, vLLM, or any OpenAI-compatible endpoint. Nothing leaves your network. Ideal for air-gapped environments, regulated industries (FINMA, BaFin, GDPR).
         </div>
       </div>
     </div>
