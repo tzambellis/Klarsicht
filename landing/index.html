@@ -170,6 +170,31 @@
       .arch-cluster { padding: 40px 16px 24px; }
     }
 
+    /* Integrations */
+    .integrations { border-top: 1px solid var(--border); }
+    .int-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 48px; }
+    @media (max-width: 900px) { .int-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .int-grid { grid-template-columns: repeat(2, 1fr); } }
+    .int-card { padding: 24px 20px; background: var(--surface); border: 1px solid var(--border); text-align: center; position: relative; transition: border-color 0.3s, box-shadow 0.3s; }
+    .int-card:first-child { border-radius: 10px 0 0 0; }
+    .int-card:nth-child(4) { border-radius: 0 10px 0 0; }
+    .int-card:nth-child(9) { border-radius: 0 0 0 10px; }
+    .int-card:last-child { border-radius: 0 0 10px 0; }
+    @media (max-width: 900px) { .int-card { border-radius: 0 !important; } .int-card:first-child { border-radius: 10px 0 0 0 !important; } .int-card:nth-child(3) { border-radius: 0 10px 0 0 !important; } }
+    @media (max-width: 600px) { .int-card { border-radius: 0 !important; } .int-card:first-child { border-radius: 10px 0 0 0 !important; } .int-card:nth-child(2) { border-radius: 0 10px 0 0 !important; } }
+    .int-active:hover { border-color: rgba(34,197,94,0.3); box-shadow: 0 0 30px rgba(34,197,94,0.06); }
+    .int-soon { opacity: 0.5; }
+    .int-soon:hover { opacity: 0.7; }
+    .int-status { position: absolute; top: 8px; right: 10px; display: flex; align-items: center; gap: 4px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .int-dot { width: 5px; height: 5px; border-radius: 50%; }
+    .int-dot-live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .int-dot-soon { background: var(--muted); }
+    .int-icon { font-size: 24px; margin-bottom: 10px; }
+    .int-active .int-icon { filter: drop-shadow(0 0 8px rgba(34,197,94,0.3)); }
+    .int-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .int-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .int-active .int-desc { color: var(--dim); }
+
     /* Compare */
     .compare { border-top: 1px solid var(--border); }
     .compare-table { margin-top: 48px; width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -234,6 +259,7 @@
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#architecture">Architecture</a>
+      <a href="#integrations">Integrations</a>
       <a href="#results">Results</a>
       <a href="#install">Install</a>
       <a href="https://gitlab.com/outcept/klarsicht" target="_blank" rel="noopener" class="nav-cta">GitLab</a>
@@ -486,6 +512,95 @@
   </div>
 </section>
 
+<!-- Integrations -->
+<section class="integrations" id="integrations">
+  <div class="container">
+    <div class="fade-in">
+      <p class="label">Integrations</p>
+      <h2 class="stitle">Plugs into your existing stack</h2>
+      <p class="sdesc">Klarsicht connects to the tools already running in your cluster. No new agents, no sidecars, no data export.</p>
+    </div>
+
+    <div class="int-grid fade-in">
+      <!-- Active -->
+      <div class="int-card int-active">
+        <div class="int-status"><span class="int-dot int-dot-live"></span> Live</div>
+        <div class="int-icon">&#9881;</div>
+        <div class="int-name">Kubernetes</div>
+        <div class="int-desc">Pods, logs, events, deployments, nodes, replicasets. Read-only via K8s API.</div>
+      </div>
+      <div class="int-card int-active">
+        <div class="int-status"><span class="int-dot int-dot-live"></span> Live</div>
+        <div class="int-icon">&#9707;</div>
+        <div class="int-name">Prometheus</div>
+        <div class="int-desc">PromQL range &amp; instant queries. CPU, memory, error rate, custom metrics.</div>
+      </div>
+      <div class="int-card int-active">
+        <div class="int-status"><span class="int-dot int-dot-live"></span> Live</div>
+        <div class="int-icon">&#9707;</div>
+        <div class="int-name">Mimir</div>
+        <div class="int-desc">Grafana Mimir compatible. Same PromQL interface, long-term storage.</div>
+      </div>
+      <div class="int-card int-active">
+        <div class="int-status"><span class="int-dot int-dot-live"></span> Live</div>
+        <div class="int-icon">&#9888;</div>
+        <div class="int-name">Grafana</div>
+        <div class="int-desc">Webhook contact point. Alert history, one-click setup via API.</div>
+      </div>
+
+      <!-- Coming soon -->
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#9776;</div>
+        <div class="int-name">Loki</div>
+        <div class="int-desc">LogQL queries across all pods. Correlate logs with metrics during investigation.</div>
+      </div>
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#10132;</div>
+        <div class="int-name">Tempo</div>
+        <div class="int-desc">Distributed trace lookup for latency and error investigations.</div>
+      </div>
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#10074;&#10074;</div>
+        <div class="int-name">Slack</div>
+        <div class="int-desc">Post RCA summaries to incident channels. Interactive thread updates.</div>
+      </div>
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#8634;</div>
+        <div class="int-name">ArgoCD</div>
+        <div class="int-desc">Recent syncs, rollout history. Correlate deployments with incidents.</div>
+      </div>
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#128274;</div>
+        <div class="int-name">Cert-Manager</div>
+        <div class="int-desc">Certificate expiry checks. Detect TLS-related failures automatically.</div>
+      </div>
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#9700;</div>
+        <div class="int-name">Cilium / Hubble</div>
+        <div class="int-desc">Network flow logs. Identify NetworkPolicy blocks and DNS failures.</div>
+      </div>
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#8693;</div>
+        <div class="int-name">Flux</div>
+        <div class="int-desc">GitOps reconciliation status. Source and kustomization health.</div>
+      </div>
+      <div class="int-card int-soon">
+        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+        <div class="int-icon">&#9878;</div>
+        <div class="int-name">PagerDuty</div>
+        <div class="int-desc">Bi-directional incident sync. Auto-acknowledge when RCA is delivered.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Compare -->
 <section class="compare" id="compare">
   <div class="container">
@@ -507,7 +622,7 @@
           <tr class="hl"><td>Correlates across resources</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
           <tr class="hl"><td>Generates postmortem</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td></tr>
           <tr class="hl"><td>Slack-native</td><td>Dashboard + API</td><td><span class="check">&#10003; Built-in</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
-          <tr class="hl"><td>Integrations</td><td>K8s + Prometheus</td><td><span class="check">40+ tools</span></td><td><span class="check">Full Datadog</span></td><td>K8s only</td></tr>
+          <tr class="hl"><td>Integrations</td><td>4 live, 8 coming</td><td><span class="check">40+ tools</span></td><td><span class="check">Full Datadog</span></td><td>K8s only</td></tr>
           <tr class="hl"><td>Full air-gap / on-prem LLM</td><td><span class="check">&#10003; Ollama/vLLM</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td></tr>
           <tr class="hl"><td>Free tier</td><td><span class="check">&#10003; Free to start</span></td><td>Free trial</td><td><span class="cross">&#10007; $$$$</span></td><td><span class="check">&#10003; Open source</span></td></tr>
           <tr class="hl"><td>Setup time</td><td><span class="s" style="color:var(--green)">5 minutes</span></td><td>30 minutes</td><td>Days + sales call</td><td><span class="s" style="color:var(--green)">5 minutes</span></td></tr>
