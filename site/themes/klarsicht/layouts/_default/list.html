@@ -4,7 +4,7 @@
     <div class="blog-list">
       <h1>{{ .Title }}</h1>
       {{ with .Description }}<p class="sub">{{ . }}</p>{{ end }}
-      {{ range .Pages.ByDate.Reverse }}
+      {{ range .RegularPages.ByDate.Reverse }}
       <a href="{{ .Permalink }}" class="blog-card">
         <div class="blog-meta">
           <span>{{ .Date.Format "Jan 2, 2006" }}</span>
