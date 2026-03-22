@@ -31,9 +31,9 @@ data:
             proxy_set_header X-Real-IP $remote_addr;
         }
 
-        # Docs & Blog (Hugo site)
+        # Docs & Blog (Hugo site) — keep /site/ prefix
         location /site/ {
-            proxy_pass http://klarsicht-site.{{ .Release.Namespace }}.svc:80/;
+            proxy_pass http://klarsicht-site.{{ .Release.Namespace }}.svc:80/site/;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }

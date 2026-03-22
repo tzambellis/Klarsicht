@@ -4,6 +4,8 @@ COPY site/ .
 RUN hugo --minify
 
 FROM nginx:1.27-alpine
-COPY --from=build /src/public /usr/share/nginx/html
+# Hugo generates with baseURL /site/, serve under /site/
+RUN mkdir -p /usr/share/nginx/html/site
+COPY --from=build /src/public /usr/share/nginx/html/site
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
