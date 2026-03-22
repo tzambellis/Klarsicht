@@ -41,7 +41,15 @@
     .nav-links a:hover { color: var(--text); }
     .nav-cta { color: var(--bg) !important; background: var(--text); padding: 7px 14px; border-radius: 6px; font-weight: 500; font-size: 13px !important; transition: opacity 0.2s; }
     .nav-cta:hover { opacity: 0.85; }
-    @media (max-width: 600px) { .nav-links a:not(.nav-cta) { display: none; } }
+    .burger { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: var(--dim); }
+    .burger svg { width: 22px; height: 22px; }
+    @media (max-width: 700px) {
+      .burger { display: block; }
+      .nav-links { display: none; position: fixed; top: 50px; left: 0; right: 0; bottom: 0; flex-direction: column; gap: 0; background: rgba(0,0,0,0.97); backdrop-filter: blur(16px); padding: 16px 24px; z-index: 99; }
+      .nav-links.open { display: flex; }
+      .nav-links a { font-size: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+      .nav-links .nav-cta { margin-top: 12px; text-align: center; border-bottom: none; padding: 12px 0; }
+    }
 
     /* Hero */
     .hero { padding: 160px 0 100px; text-align: center; }
@@ -256,13 +264,15 @@
 <nav>
   <div class="container">
     <a href="#" class="nav-logo"><span class="mark">K</span> Klarsicht</a>
+    <button class="burger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#architecture">Architecture</a>
-      <a href="#integrations">Integrations</a>
-      <a href="#results">Results</a>
-      <a href="#install">Install</a>
-      <a href="https://gitlab.com/outcept/klarsicht" target="_blank" rel="noopener" class="nav-cta">GitLab</a>
+      <a href="#how" onclick="this.parentElement.classList.remove('open')">How it works</a>
+      <a href="#architecture" onclick="this.parentElement.classList.remove('open')">Architecture</a>
+      <a href="#integrations" onclick="this.parentElement.classList.remove('open')">Integrations</a>
+      <a href="#results" onclick="this.parentElement.classList.remove('open')">Results</a>
+      <a href="#install" onclick="this.parentElement.classList.remove('open')">Install</a>
     </div>
   </div>
 </nav>
@@ -275,7 +285,7 @@
     <p class="hero-sub">Klarsicht is an AI agent that receives your Grafana alerts, inspects your cluster, and delivers root cause analysis before you open a terminal.</p>
     <div class="hero-ctas">
       <a href="#install" class="btn btn-primary">Deploy in 5 minutes</a>
-      <a href="https://gitlab.com/outcept/klarsicht" target="_blank" rel="noopener" class="btn btn-ghost">View source</a>
+      <a href="#how" class="btn btn-ghost">How it works</a>
     </div>
     <div class="hero-stat">
       <div><div class="num green">&lt;60s</div><div class="label">Time to RCA</div></div>
