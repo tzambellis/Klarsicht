@@ -36,7 +36,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
     padding: 12px 24px; z-index: 99;
   }
   .site-nav .links.open { display: flex; }
-  .site-nav .links a { font-size: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .site-nav .links a { font-size: 18px; padding: 20px 0; border-bottom: 1px solid var(--border); display: block; }
 }
 
 /* Layout */
