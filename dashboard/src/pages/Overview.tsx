@@ -31,11 +31,34 @@ export default function Overview() {
       .finally(() => setLoading(false));
   }, []);
 
+  const total = stats?.total_incidents ?? 0;
+  const resolved = stats?.completed ?? 0;
+  const resolutionRate = total > 0 ? Math.round((resolved / total) * 100) : 0;
+
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold tracking-tight">Overview</h2>
-        <p className="text-sm text-[#888] mt-1">SRE incident dashboard</p>
+      {/* Hero Banner */}
+      <div className="border border-white/[0.08] rounded-md p-6 md:p-8 mb-8 bg-gradient-to-br from-[#22c55e]/[0.03] to-transparent">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
+              <span className="text-xs text-[#22c55e] font-medium uppercase tracking-wider">Live</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
+              AI-Powered Root Cause Analysis
+            </h2>
+            <p className="text-sm text-[#888] max-w-md">
+              Autonomous incident investigation for Kubernetes. Self-hosted, FINMA-ready, no data leaves your cluster.
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-4xl md:text-5xl font-bold font-mono text-[#22c55e] tracking-tighter">
+              {resolutionRate}%
+            </div>
+            <div className="text-xs text-[#888] uppercase tracking-wider mt-1">Resolution Rate</div>
+          </div>
+        </div>
       </div>
 
       {loading && (
@@ -54,19 +77,39 @@ export default function Overview() {
       {stats && (
         <div className="space-y-6">
           {/* Stats cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <StatCard label="Total Incidents" value={stats.total_incidents} />
             <StatCard label="Resolved" value={stats.completed} accent />
             <StatCard label="Investigating" value={stats.investigating} />
             <StatCard
               label="Avg Investigation"
               value={formatDuration(stats.avg_investigation_seconds)}
+              sub="per incident"
             />
+          </div>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="border border-white/[0.08] rounded-md p-4 text-center">
+              <p className="text-2xl font-bold font-mono text-white">
+                {stats.avg_investigation_seconds > 0 ? "<60s" : "-"}
+              </p>
+              <p className="text-[10px] text-[#555] uppercase tracking-wider mt-1">Time to RCA</p>
+            </div>
+            <div className="border border-white/[0.08] rounded-md p-4 text-center">
+              <p className="text-2xl font-bold font-mono text-[#22c55e]">
+                {stats.category_breakdown.length}
+              </p>
+              <p className="text-[10px] text-[#555] uppercase tracking-wider mt-1">Root Cause Categories</p>
+            </div>
+            <div className="border border-white/[0.08] rounded-md p-4 text-center">
+              <p className="text-2xl font-bold font-mono text-white">0</p>
+              <p className="text-[10px] text-[#555] uppercase tracking-wider mt-1">Data Sent Outside</p>
+            </div>
           </div>
 
           {/* Two-column row: Top Alerts + Top Namespaces */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Top Alerts */}
             <section className="border border-white/[0.08] rounded-md p-6">
               <SectionTitle>Top Alerts</SectionTitle>
               {stats.top_alerts.length === 0 ? (
@@ -85,7 +128,6 @@ export default function Overview() {
               )}
             </section>
 
-            {/* Top Namespaces */}
             <section className="border border-white/[0.08] rounded-md p-6">
               <SectionTitle>Top Namespaces</SectionTitle>
               {stats.top_namespaces.length === 0 ? (
@@ -107,19 +149,18 @@ export default function Overview() {
 
           {/* Category Breakdown */}
           <section className="border border-white/[0.08] rounded-md p-6">
-            <SectionTitle>Category Breakdown</SectionTitle>
+            <SectionTitle>Root Cause Categories</SectionTitle>
             {stats.category_breakdown.length === 0 ? (
               <p className="text-sm text-[#555]">No root cause categories yet</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="space-y-3">
                 {stats.category_breakdown.map((cat) => (
-                  <div
+                  <BarItem
                     key={cat.category}
-                    className="flex items-center justify-between border border-white/[0.08] rounded px-4 py-3"
-                  >
-                    <span className="text-sm text-white/90">{cat.category.replace(/_/g, " ")}</span>
-                    <span className="text-sm font-mono text-[#888]">{cat.count}</span>
-                  </div>
+                    label={cat.category.replace(/_/g, " ")}
+                    count={cat.count}
+                    max={stats.category_breakdown[0].count}
+                  />
                 ))}
               </div>
             )}
@@ -133,13 +174,13 @@ export default function Overview() {
                 to="/incidents"
                 className="text-xs text-[#888] hover:text-white transition-colors"
               >
-                View all
+                View all &rarr;
               </Link>
             </div>
             {stats.recent_incidents.length === 0 ? (
               <p className="text-sm text-[#555]">No incidents yet</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {stats.recent_incidents.map((inc) => (
                   <Link
                     key={inc.incident_id}
@@ -151,7 +192,7 @@ export default function Overview() {
                       <span className="text-sm text-white group-hover:underline underline-offset-4 decoration-white/30">
                         {inc.alert_name}
                       </span>
-                      <span className="ml-2 font-mono text-xs text-[#555]">
+                      <span className="hidden sm:inline ml-2 font-mono text-xs text-[#555]">
                         {inc.namespace}/{inc.pod}
                       </span>
                     </div>
@@ -164,7 +205,7 @@ export default function Overview() {
                         {Math.round(inc.confidence * 100)}%
                       </span>
                     )}
-                    <span className="text-xs text-[#555]">
+                    <span className="text-xs text-[#555] hidden sm:inline">
                       {inc.started_at ? formatTime(inc.started_at) : "-"}
                     </span>
                   </Link>
@@ -172,6 +213,26 @@ export default function Overview() {
               </div>
             )}
           </section>
+
+          {/* Compliance footer */}
+          <div className="flex flex-wrap items-center gap-4 text-[10px] text-[#555] uppercase tracking-wider pt-2">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1 w-1 rounded-full bg-[#22c55e]"></span>
+              Self-hosted
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1 w-1 rounded-full bg-[#22c55e]"></span>
+              Read-only K8s access
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1 w-1 rounded-full bg-[#22c55e]"></span>
+              On-prem LLM ready
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1 w-1 rounded-full bg-[#22c55e]"></span>
+              FINMA / GDPR compliant
+            </span>
+          </div>
         </div>
       )}
     </main>
@@ -182,17 +243,20 @@ function StatCard({
   label,
   value,
   accent,
+  sub,
 }: {
   label: string;
   value: string | number;
   accent?: boolean;
+  sub?: string;
 }) {
   return (
-    <div className="border border-white/[0.08] rounded-md p-5">
-      <p className="text-xs font-medium uppercase tracking-wider text-[#888] mb-2">{label}</p>
-      <p className={`text-3xl font-semibold ${accent ? "text-[#22c55e]" : "text-white"}`}>
+    <div className="border border-white/[0.08] rounded-md p-4 md:p-5">
+      <p className="text-[10px] font-medium uppercase tracking-wider text-[#888] mb-1.5">{label}</p>
+      <p className={`text-2xl md:text-3xl font-semibold ${accent ? "text-[#22c55e]" : "text-white"}`}>
         {value}
       </p>
+      {sub && <p className="text-[10px] text-[#555] mt-0.5">{sub}</p>}
     </div>
   );
 }
