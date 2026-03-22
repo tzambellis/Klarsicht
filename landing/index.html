@@ -497,18 +497,21 @@
     <div class="fade-in" style="overflow-x:auto">
       <table class="compare-table">
         <thead>
-          <tr><th></th><th>Klarsicht</th><th>Datadog AI</th><th>Resolve AI</th><th>K8sGPT</th></tr>
+          <tr><th></th><th>Klarsicht</th><th>IncidentFox</th><th>Datadog AI</th><th>K8sGPT</th></tr>
         </thead>
         <tbody>
-          <tr class="hl"><td>Self-hosted</td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td></tr>
-          <tr class="hl"><td>Data stays in-cluster</td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td></tr>
+          <tr class="hl"><td>Self-hosted / on-prem</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003; Open core</span></td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td></tr>
+          <tr class="hl"><td>Data stays in-cluster</td><td><span class="check">&#10003; Always</span></td><td>SaaS or VPC</td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td></tr>
           <tr class="hl"><td>Reads pod logs + events</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td></tr>
           <tr class="hl"><td>Queries Prometheus metrics</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
           <tr class="hl"><td>Correlates across resources</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
-          <tr class="hl"><td>Generates postmortem</td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
-          <tr class="hl"><td>Free tier</td><td><span class="check">&#10003; Free to start</span></td><td><span class="cross">&#10007; $$$$</span></td><td><span class="cross">&#10007; $$</span></td><td><span class="check">&#10003; Open source</span></td></tr>
-          <tr class="hl"><td>Setup time</td><td><span class="s" style="color:var(--green)">5 minutes</span></td><td>Days + sales call</td><td>Days + sales call</td><td><span class="s" style="color:var(--green)">5 minutes</span></td></tr>
-          <tr class="hl"><td>EU data residency</td><td><span class="check">&#10003; Your infra</span></td><td><span class="cross">US-hosted</span></td><td><span class="cross">US-hosted</span></td><td><span class="check">&#10003; Your infra</span></td></tr>
+          <tr class="hl"><td>Generates postmortem</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td></tr>
+          <tr class="hl"><td>Slack-native</td><td>Dashboard + API</td><td><span class="check">&#10003; Built-in</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
+          <tr class="hl"><td>Integrations</td><td>K8s + Prometheus</td><td><span class="check">40+ tools</span></td><td><span class="check">Full Datadog</span></td><td>K8s only</td></tr>
+          <tr class="hl"><td>Full air-gap / on-prem LLM</td><td><span class="check">&#10003; Ollama/vLLM</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td></tr>
+          <tr class="hl"><td>Free tier</td><td><span class="check">&#10003; Free to start</span></td><td>Free trial</td><td><span class="cross">&#10007; $$$$</span></td><td><span class="check">&#10003; Open source</span></td></tr>
+          <tr class="hl"><td>Setup time</td><td><span class="s" style="color:var(--green)">5 minutes</span></td><td>30 minutes</td><td>Days + sales call</td><td><span class="s" style="color:var(--green)">5 minutes</span></td></tr>
+          <tr class="hl"><td>EU data residency</td><td><span class="check">&#10003; Your infra</span></td><td>VPC option</td><td><span class="cross">US-hosted</span></td><td><span class="check">&#10003; Your infra</span></td></tr>
         </tbody>
       </table>
     </div>
