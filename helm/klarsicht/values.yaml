@@ -25,6 +25,8 @@ dashboard:
     tag: latest
     pullPolicy: IfNotPresent
   replicas: 1
+  auth:
+    htpasswd: ""  # Generate with: htpasswd -nb user password
   ingress:
     enabled: false
     className: ""
