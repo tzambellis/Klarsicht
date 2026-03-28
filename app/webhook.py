@@ -43,6 +43,20 @@ def verify_hmac_signature(body: bytes, signature: str, secret: str) -> bool:
     return hmac.compare_digest(expected, signature)
 
 
+def _notify(result: RCAResult) -> None:
+    """Send RCA result to all configured notification channels."""
+    url = settings.dashboard_url
+    if settings.teams_webhook_url:
+        from app.tools.teams import post_rca_to_teams
+        post_rca_to_teams(result, dashboard_url=url)
+    if settings.slack_webhook_url:
+        from app.tools.slack import post_rca_to_slack
+        post_rca_to_slack(result, dashboard_url=url)
+    if settings.discord_webhook_url:
+        from app.tools.discord import post_rca_to_discord
+        post_rca_to_discord(result, dashboard_url=url)
+
+
 async def _run_and_store(incident_id: UUID, alert: Alert) -> None:
     """Run RCA investigation in the background and store the result."""
     try:
@@ -53,10 +67,8 @@ async def _run_and_store(incident_id: UUID, alert: Alert) -> None:
         else:
             _memory_store[str(incident_id)] = result
 
-        # Post to Teams if configured
-        if settings.teams_webhook_url:
-            from app.tools.teams import post_rca_to_teams
-            post_rca_to_teams(result, dashboard_url=settings.dashboard_url)
+        # Post notifications
+        _notify(result)
 
     except Exception:
         logger.exception("Investigation failed for incident %s", incident_id)

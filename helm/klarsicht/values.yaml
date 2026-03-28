@@ -63,13 +63,15 @@ gitlab:
   token: ""                   # PAT with read_api + read_repository scope
   project: ""                 # e.g. "mygroup/myproject" or numeric ID
 
-# Microsoft Teams notifications
+# Notifications
 teams:
-  webhookUrl: ""              # Incoming Webhook URL from Teams channel
+  webhookUrl: ""              # Microsoft Teams Incoming Webhook URL
 
-# Slack notifications
 slack:
-  webhookUrl: ""
+  webhookUrl: ""              # Slack Incoming Webhook URL
+
+discord:
+  webhookUrl: ""              # Discord Webhook URL
 
 # Dashboard URL for links in notifications
 dashboardUrl: ""              # e.g. https://klarsicht.dev

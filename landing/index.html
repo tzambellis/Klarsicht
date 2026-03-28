@@ -573,11 +573,23 @@
         <div class="int-name">Tempo</div>
         <div class="int-desc">Distributed trace lookup for latency and error investigations.</div>
       </div>
-      <div class="int-card int-soon">
-        <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
+      <div class="int-card int-active">
+        <div class="int-status"><span class="int-dot int-dot-live"></span> Live</div>
         <div class="int-icon">&#10074;&#10074;</div>
         <div class="int-name">Slack</div>
-        <div class="int-desc">Post RCA summaries to incident channels. Interactive thread updates.</div>
+        <div class="int-desc">Post RCA summaries with fix steps to incident channels via webhook.</div>
+      </div>
+      <div class="int-card int-active">
+        <div class="int-status"><span class="int-dot int-dot-live"></span> Live</div>
+        <div class="int-icon">&#9741;</div>
+        <div class="int-name">Discord</div>
+        <div class="int-desc">Rich embed notifications with root cause, evidence, and fix steps.</div>
+      </div>
+      <div class="int-card int-active">
+        <div class="int-status"><span class="int-dot int-dot-live"></span> Live</div>
+        <div class="int-icon">&#9993;</div>
+        <div class="int-name">Teams</div>
+        <div class="int-desc">Adaptive Card with RCA summary, confidence score, and dashboard link.</div>
       </div>
       <div class="int-card int-soon">
         <div class="int-status"><span class="int-dot int-dot-soon"></span> Coming soon</div>
@@ -633,8 +645,8 @@
           <tr class="hl"><td>Queries Prometheus metrics</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
           <tr class="hl"><td>Correlates across resources</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
           <tr class="hl"><td>Generates postmortem</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td></tr>
-          <tr class="hl"><td>Slack-native</td><td>Dashboard + API</td><td><span class="check">&#10003; Built-in</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
-          <tr class="hl"><td>Integrations</td><td>4 live, 8 coming</td><td><span class="check">40+ tools</span></td><td><span class="check">Full Datadog</span></td><td>K8s only</td></tr>
+          <tr class="hl"><td>Slack-native</td><td><span class="check">&#10003; Webhook</span></td><td><span class="check">&#10003; Built-in</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10007;</span></td></tr>
+          <tr class="hl"><td>Integrations</td><td>8 live, 5 coming</td><td><span class="check">40+ tools</span></td><td><span class="check">Full Datadog</span></td><td>K8s only</td></tr>
           <tr class="hl"><td>Full air-gap / on-prem LLM</td><td><span class="check">&#10003; Ollama/vLLM</span></td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="check">&#10003;</span></td></tr>
           <tr class="hl"><td>Free tier</td><td><span class="check">&#10003; Free to start</span></td><td>Free trial</td><td><span class="cross">&#10007; $$$$</span></td><td><span class="check">&#10003; Open source</span></td></tr>
           <tr class="hl"><td>Setup time</td><td><span class="s" style="color:var(--green)">5 minutes</span></td><td>30 minutes</td><td>Days + sales call</td><td><span class="s" style="color:var(--green)">5 minutes</span></td></tr>

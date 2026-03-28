@@ -16,8 +16,10 @@ class Settings(BaseSettings):
     gitlab_token: str = ""  # Personal/Project Access Token (read_api scope)
     gitlab_project: str = ""  # project path e.g. "outcept/klarsicht" or numeric ID
 
-    # Microsoft Teams
-    teams_webhook_url: str = ""  # Incoming Webhook URL from Teams channel
+    # Notifications
+    teams_webhook_url: str = ""  # Microsoft Teams Incoming Webhook URL
+    slack_webhook_url: str = ""  # Slack Incoming Webhook URL
+    discord_webhook_url: str = ""  # Discord Webhook URL
 
     # Dashboard URL (for links in notifications)
     dashboard_url: str = ""  # e.g. https://klarsicht.dev
