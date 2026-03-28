@@ -11,6 +11,17 @@ class Settings(BaseSettings):
     llm_base_url: str = ""  # only for ollama/custom: http://ollama.local:11434/v1
     database_url: str = ""
 
+    # GitLab integration
+    gitlab_url: str = ""  # https://gitlab.com or self-hosted
+    gitlab_token: str = ""  # Personal/Project Access Token (read_api scope)
+    gitlab_project: str = ""  # project path e.g. "outcept/klarsicht" or numeric ID
+
+    # Microsoft Teams
+    teams_webhook_url: str = ""  # Incoming Webhook URL from Teams channel
+
+    # Dashboard URL (for links in notifications)
+    dashboard_url: str = ""  # e.g. https://klarsicht.dev
+
     model_config = {"env_prefix": "KLARSICHT_"}
 
     @property

@@ -74,6 +74,28 @@ spec:
                   name: {{ include "klarsicht.agent.secretName" . }}
                   key: slack-webhook-url
             {{- end }}
+            {{- if .Values.gitlab.enabled }}
+            - name: KLARSICHT_GITLAB_URL
+              value: {{ .Values.gitlab.url | quote }}
+            - name: KLARSICHT_GITLAB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "klarsicht.agent.secretName" . }}
+                  key: gitlab-token
+            - name: KLARSICHT_GITLAB_PROJECT
+              value: {{ .Values.gitlab.project | quote }}
+            {{- end }}
+            {{- if .Values.teams.webhookUrl }}
+            - name: KLARSICHT_TEAMS_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "klarsicht.agent.secretName" . }}
+                  key: teams-webhook-url
+            {{- end }}
+            {{- if .Values.dashboardUrl }}
+            - name: KLARSICHT_DASHBOARD_URL
+              value: {{ .Values.dashboardUrl | quote }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /healthz

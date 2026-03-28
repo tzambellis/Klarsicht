@@ -56,8 +56,23 @@ grafana:
   webhookPath: /alert
   webhookSecret: ""          # HMAC shared secret
 
+# GitLab integration (read-only: pipelines, MRs, deployments, code)
+gitlab:
+  enabled: false
+  url: https://gitlab.com     # or self-hosted URL
+  token: ""                   # PAT with read_api + read_repository scope
+  project: ""                 # e.g. "mygroup/myproject" or numeric ID
+
+# Microsoft Teams notifications
+teams:
+  webhookUrl: ""              # Incoming Webhook URL from Teams channel
+
+# Slack notifications
 slack:
   webhookUrl: ""
+
+# Dashboard URL for links in notifications
+dashboardUrl: ""              # e.g. https://klarsicht.dev
 
 # Override the database URL when using an external database
 externalDatabase:

@@ -120,6 +120,113 @@ MIMIR_TOOLS = [
 ]
 
 
+# --- GitLab tools ---
+
+@tool
+def gitlab_pipelines(status: str = "", last_n: int = 5) -> str:
+    """List recent CI/CD pipelines from GitLab. Shows pipeline status, branch, and commit SHA. Use to check if a recent deploy failed.
+
+    Args:
+        status: Filter by status (e.g. 'failed', 'success'). Empty for all.
+        last_n: Number of pipelines to return (default 5).
+    """
+    from app.tools.gitlab import gitlab_list_pipelines
+    return _serialize(gitlab_list_pipelines(status=status, last_n=last_n))
+
+
+@tool
+def gitlab_pipeline_detail(pipeline_id: int) -> str:
+    """Get details of a specific GitLab CI pipeline including all jobs, their status, and failure reasons.
+
+    Args:
+        pipeline_id: The pipeline ID number.
+    """
+    from app.tools.gitlab import gitlab_get_pipeline
+    return _serialize(gitlab_get_pipeline(pipeline_id))
+
+
+@tool
+def gitlab_job_log(job_id: int, tail: int = 200) -> str:
+    """Get the raw log output of a GitLab CI job. Useful for understanding why a build or deploy failed.
+
+    Args:
+        job_id: The job ID number.
+        tail: Number of log lines to return (default 200).
+    """
+    from app.tools.gitlab import gitlab_get_job_log
+    return gitlab_get_job_log(job_id, tail)
+
+
+@tool
+def gitlab_merge_requests(state: str = "merged", last_n: int = 5) -> str:
+    """List recent merge requests from GitLab. Use to find what code changes were deployed recently.
+
+    Args:
+        state: MR state filter: 'merged', 'opened', 'closed' (default 'merged').
+        last_n: Number of MRs to return (default 5).
+    """
+    from app.tools.gitlab import gitlab_list_merge_requests
+    return _serialize(gitlab_list_merge_requests(state=state, last_n=last_n))
+
+
+@tool
+def gitlab_mr_changes(mr_iid: int) -> str:
+    """Get the file changes (diffs) from a GitLab merge request. Only shows config files (Dockerfile, YAML, .env, etc.) not application code.
+
+    Args:
+        mr_iid: The merge request IID (the number shown in the URL, e.g. !42).
+    """
+    from app.tools.gitlab import gitlab_get_mr_changes
+    return _serialize(gitlab_get_mr_changes(mr_iid))
+
+
+@tool
+def gitlab_deployments(environment: str = "", last_n: int = 5) -> str:
+    """List recent GitLab deployments. Shows which ref/SHA was deployed to which environment and when.
+
+    Args:
+        environment: Filter by environment name (e.g. 'production'). Empty for all.
+        last_n: Number of deployments to return (default 5).
+    """
+    from app.tools.gitlab import gitlab_list_deployments
+    return _serialize(gitlab_list_deployments(environment=environment, last_n=last_n))
+
+
+@tool
+def gitlab_file(file_path: str, ref: str = "main") -> str:
+    """Read a file from the GitLab repository. Use to check Dockerfiles, k8s manifests, CI configs, or Helm values.
+
+    Args:
+        file_path: Path to the file (e.g. 'k8s/deployment.yaml', 'Dockerfile').
+        ref: Branch or commit SHA (default 'main').
+    """
+    from app.tools.gitlab import gitlab_get_file
+    return gitlab_get_file(file_path, ref)
+
+
+@tool
+def gitlab_code_search(query: str) -> str:
+    """Search for a string in the GitLab project codebase. Use to find where an env var, config key, or resource is defined.
+
+    Args:
+        query: Search string (e.g. 'DATABASE_URL', 'memory limit').
+    """
+    from app.tools.gitlab import gitlab_search_code
+    return _serialize(gitlab_search_code(query))
+
+
+GITLAB_TOOLS = [
+    gitlab_pipelines,
+    gitlab_pipeline_detail,
+    gitlab_job_log,
+    gitlab_merge_requests,
+    gitlab_mr_changes,
+    gitlab_deployments,
+    gitlab_file,
+    gitlab_code_search,
+]
+
+
 def get_tools() -> list:
     """Return the active tool set based on configuration."""
     from app.config import settings
@@ -127,4 +234,6 @@ def get_tools() -> list:
     tools = list(K8S_TOOLS)
     if settings.mimir_endpoint:
         tools.extend(MIMIR_TOOLS)
+    if settings.gitlab_url and settings.gitlab_token and settings.gitlab_project:
+        tools.extend(GITLAB_TOOLS)
     return tools

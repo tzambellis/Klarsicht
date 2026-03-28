@@ -52,6 +52,12 @@ async def _run_and_store(incident_id: UUID, alert: Alert) -> None:
             await save_rca_result(incident_id, result)
         else:
             _memory_store[str(incident_id)] = result
+
+        # Post to Teams if configured
+        if settings.teams_webhook_url:
+            from app.tools.teams import post_rca_to_teams
+            post_rca_to_teams(result, dashboard_url=settings.dashboard_url)
+
     except Exception:
         logger.exception("Investigation failed for incident %s", incident_id)
         if _use_db:
