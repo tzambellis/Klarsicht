@@ -23,9 +23,9 @@ entries:
           url: https://github.com/Outcept/Klarsicht
     apiVersion: v2
     appVersion: 0.6.19
-    created: "2026-05-10T19:35:42.277733638Z"
+    created: "2026-05-10T19:35:48.5549149Z"
     description: AI-powered Root Cause Analysis agent for Kubernetes
-    digest: e10e49fb436a9544ef451ad88c2ad0d8e90f96199bd1a0caf22ff93faf0dba64
+    digest: f63bfdb4817bc056b31232d9c8e7099be4fe4b053e141bebf575172c098c17d0
     home: https://klarsicht.dev
     keywords:
     - kubernetes
@@ -47,4 +47,4 @@ entries:
     urls:
     - https://outcept.github.io/Klarsicht/klarsicht-0.6.19.tgz
     version: 0.6.19
-generated: "2026-05-10T19:35:42.275734877Z"
+generated: "2026-05-10T19:35:48.553099208Z"
