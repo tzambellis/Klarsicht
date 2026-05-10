@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import Overview from "./pages/Overview";
 import IncidentList from "./pages/IncidentList";
 import IncidentDetail from "./pages/IncidentDetail";
+import Investigate from "./pages/Investigate";
 import Setup from "./pages/Setup";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,9 @@ function Nav() {
           </NavLink>
           <NavLink to="/incidents" className={({ isActive }) => `${link} ${isActive ? active : inactive}`}>
             Incidents
+          </NavLink>
+          <NavLink to="/investigate" className={({ isActive }) => `${link} ${isActive ? active : inactive}`}>
+            Investigate
           </NavLink>
           <NavLink to="/setup" className={({ isActive }) => `${link} ${isActive ? active : inactive}`}>
             Setup
@@ -71,6 +75,7 @@ function ProtectedApp() {
         <Route path="/" element={<Overview />} />
         <Route path="/incidents" element={<IncidentList />} />
         <Route path="/incidents/:id" element={<IncidentDetail />} />
+        <Route path="/investigate" element={<Investigate />} />
         <Route path="/setup" element={<Setup />} />
         {isAdmin && <Route path="/admin" element={<Admin />} />}
         <Route path="/oauth2/callback" element={<Overview />} />

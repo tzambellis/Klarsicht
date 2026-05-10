@@ -34,3 +34,21 @@ export async function retryIncident(id: string): Promise<void> {
     throw new Error(detail || `Retry failed: ${res.status}`);
   }
 }
+
+export async function manualInvestigate(input: {
+  namespace: string;
+  pod: string;
+  context?: string;
+  severity?: string;
+}): Promise<{ incident_id: string }> {
+  const res = await authFetch(`${BASE}/investigate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(detail || `Investigate failed: ${res.status}`);
+  }
+  return res.json();
+}

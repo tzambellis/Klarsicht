@@ -800,6 +800,73 @@ async def get_incident_steps(incident_id: str):
     return get_progress(incident_id).to_dict()
 
 
+class ManualInvestigationRequest(BaseModel):
+    namespace: str
+    pod: str
+    context: str = ""             # free-form: what the user knows about the app
+    severity: str = "info"
+
+
+@app.post("/investigate")
+async def manual_investigate(
+    req: ManualInvestigationRequest,
+    user: AuthUser | None = Depends(get_current_user),
+):
+    """Trigger an RCA investigation manually for a chosen pod, with optional user-supplied context.
+
+    Useful when Grafana isn't wired up yet, or for demos. Synthesises an Alert and feeds
+    it through the same _run_and_store flow as a real webhook.
+    """
+    if not req.namespace or not req.pod:
+        raise HTTPException(status_code=400, detail="namespace and pod are required")
+
+    labels = {
+        "alertname": "ManualInvestigation",
+        "namespace": req.namespace,
+        "pod": req.pod,
+        "severity": req.severity or "info",
+    }
+
+    if user and not can_view_incident({"labels": labels}, user):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    incident_id = uuid4()
+    now = datetime.now(timezone.utc)
+    description = req.context.strip() or f"User requested investigation of pod {req.pod} in namespace {req.namespace}."
+
+    alert = Alert(
+        status="firing",
+        labels=labels,
+        annotations={
+            "summary": f"Manual investigation: {req.namespace}/{req.pod}",
+            "description": description,
+        },
+        startsAt=now,
+        fingerprint=f"manual-{incident_id.hex[:8]}",
+    )
+
+    logger.info("Manual investigation %s for %s/%s", incident_id, req.namespace, req.pod)
+
+    if _use_db:
+        from app.db import create_incident
+        await create_incident(
+            incident_id,
+            "ManualInvestigation",
+            req.namespace,
+            req.pod,
+            now,
+            labels=labels,
+            alert_payload=alert.model_dump(mode="json"),
+        )
+    else:
+        _memory_store[str(incident_id)] = None
+        _memory_labels[str(incident_id)] = labels
+        _memory_alerts[str(incident_id)] = alert
+
+    asyncio.create_task(_run_and_store(incident_id, alert))
+    return {"incident_id": str(incident_id)}
+
+
 @app.post("/incidents/{incident_id}/retry")
 async def retry_incident(incident_id: str, user: AuthUser | None = Depends(get_current_user)):
     """Re-run the investigation for a finished (or failed) incident."""
